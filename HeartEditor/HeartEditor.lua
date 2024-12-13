@@ -6,6 +6,10 @@ he.info = {
     name = "HeartEditor"
 }
 
+-- Is quitting posible?
+he._quit = false
+he._quitpopup = false
+
 he.enum = {
     channel = {development="Development",beta="Beta",release="Release"}
 }
