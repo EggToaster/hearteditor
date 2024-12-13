@@ -1,2 +1,2 @@
 #!/bin/bash
-./bin/lovr HeartEditor $*
+./lovr/lovr HeartEditor $*
