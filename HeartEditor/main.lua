@@ -26,11 +26,11 @@ function lovr.load()
 	
 	log:l("BootKicker", he.info.name..
 		" v"..he.info.version..string.lower(string.sub(he.info.channel,1,1))..", "..
-		he.info.channel.." build")
+		he.info.channel.." build, running on "..lovr.system.getOS())
 
 	log:d("BootKicker", "Creating Window")
 
-	lovr.system.openWindow({width=720,height=340,fullscreen=false,resizable=false,title="HeartEditor - Loading",icon="placeholder.png"})
+	lovr.system.openWindow({width=720,height=340,fullscreen=false,resizable=true,title="HeartEditor",icon="placeholder.png"})
 
 	log:d("BootKicker", "Preparing for first render")
 
@@ -44,6 +44,9 @@ function lovr.load()
 
 	local function tempdraw()
 		local pass = lovr.graphics.getWindowPass()
+		pass:text((stage <= maxstage and stage.."/"..maxstage.." - " or "")..stagetext, -5.8, -1.7, -4, 1, 0, 0, 1, 0, 0, "left", "top")
+		if stage ~= 1 then log:d("BootKicker", stagetext) end
+		log:v("BootKicker","Render start")
 		pass:reset()
 		pass:setColor(.13, .13, .13)
 		pass:cube(-50, 0, -6, 100, 180)
@@ -54,11 +57,10 @@ function lovr.load()
 		pass:setColor(1, 1, 1)
 		pass:text("HeartEditor", -2.1, 1.7, -5, 1, 0, 0, 1, 0, 0, "left")
 		pass:draw(HeartWarming, -4.5, 0.7, -5, 4.5)
-		pass:text((stage <= maxstage and stage.."/"..maxstage.." - " or "")..stagetext, -5.8, -1.7, -4, 1, 0, 0, 1, 0, 0, "left", "top")
-		if stage ~= 1 then log:v("BootKicker", stagetext) end
 		lovr.graphics.submit(pass)
 		lovr.graphics.present()
 		lovr.timer.sleep(0.1)
+		log:v("BootKicker","Render done")
 	end
 
 	log:v("BootKicker", "First render...")
@@ -81,8 +83,6 @@ function lovr.load()
 	lovr.timer.sleep(.5)
 
 	lovr.graphics.setBackgroundColor(.5,.5,.5)
-
-
 end
 
 function lovr.keypressed(key, scancode, repeating)
@@ -105,14 +105,73 @@ function lovr.update(dt)
 	UI2D.InputInfo()
 end
 
-function lovr.draw(mainpass)
-	mainpass:setProjection( 1, mat4():orthographic( mainpass:getDimensions() ) )
+function lovr.quit()
+	if he._quit then
+		log:l("HeartSystem", "Quit initiated")
+
+		log:l("HeartSystem", "Thanks for using "..he.info.name)
+		return false -- Do not abort
+	else
+		log:l("HeartSystem", "Quit cancelled, work must be saved")
+		he._quitpopup = true
+		return true
+	end
+end
+
+function lovr.draw(pass)
+	pass:setProjection( 1, mat4():orthographic( pass:getDimensions() ) )
 
 	UI2D.Begin("My Window", 200, 200)
 	UI2D.Button("My First Button")
-	UI2D.End(mainpass)
+	UI2D.End(pass)
 
-	local ui_passes = UI2D.RenderFrame(mainpass)
-	table.insert(ui_passes, mainpass)
+	if he._quitpopup then
+		UI2D.Begin("Quit?", 0, 0, true)
+		UI2D.Label("Do you want to quit?")
+		if UI2D.Button("Save and quit") then
+			he._quitpopup = false
+			he._quit = true
+			log:fatal("HeartSystem", "No save function")
+			UI2D.EndModalWindow()
+			lovr.event.quit(0)
+		end
+		UI2D.SameLine()
+		if UI2D.Button("Quit unsaved") then
+			he._quitpopup = false
+			he._quit = true
+			UI2D.EndModalWindow()
+			lovr.event.quit(0)
+		end
+		UI2D.SameLine()
+		if UI2D.Button("Cancel") then
+			he._quitpopup = false
+			log:l("HeartSystem","Quit cancelled")
+		end
+		UI2D.End(pass)
+		local wx, wy = UI2D.GetWindowSize("Quit?")
+		local dx, dy = lovr.system.getWindowDimensions()
+		UI2D.SetWindowPosition("Quit?", dx/2-wx/2, dy/2-wy/2)
+	end
+
+	local ui_passes = UI2D.RenderFrame(pass)
+	table.insert(ui_passes, pass)
 	return lovr.graphics.submit(ui_passes)
+end
+
+function lovr.errhand(message)
+	local function formatTraceback(s)
+	  return s:gsub('\n[^\n]+$', ''):gsub('\t', ''):gsub('stack traceback:', '\nStack:\n')
+	end
+  
+	message = tostring(message) .. formatTraceback(debug.traceback('', 4))
+    print("\27[41m\27[04m"..message.."\27[00m")
+	if not lovr.graphics or not lovr.graphics.isInitialized() then
+	  return function() return 1 end
+	end
+  
+	if lovr.audio then lovr.audio.stop() end
+  
+	lovr.math.drain()
+
+	return function() return 1 end
 end
