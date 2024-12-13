@@ -80,7 +80,7 @@ function lovr.load()
 
 	lovr.timer.sleep(1)
 
-	while true do end
+	he.util.hang()
 
 end
 
