@@ -1,7 +1,5 @@
 function lovr.load()
 
-	lovr.graphics.setBackgroundColor(.13, .13, .13)
-
 	--Import libraries
 	he = require "HeartEditor"
 	he.util = require "code.util"
@@ -57,7 +55,7 @@ function lovr.load()
 		pass:text("HeartEditor", -2.1, 1.7, -5, 1, 0, 0, 1, 0, 0, "left")
 		pass:draw(HeartWarming, -4.5, 0.7, -5, 4.5)
 		pass:text((stage <= maxstage and stage.."/"..maxstage.." - " or "")..stagetext, -5.8, -1.7, -4, 1, 0, 0, 1, 0, 0, "left", "top")
-
+		if stage ~= 1 then log:v("BootKicker", stagetext) end
 		lovr.graphics.submit(pass)
 		lovr.graphics.present()
 		lovr.timer.sleep(0.1)
@@ -81,6 +79,9 @@ function lovr.load()
 	tempdraw()
 
 	lovr.timer.sleep(.5)
+
+	lovr.graphics.setBackgroundColor(.5,.5,.5)
+
 
 end
 
