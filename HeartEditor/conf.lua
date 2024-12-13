@@ -46,4 +46,4 @@ function lovr.conf(t)
 	-- Configure the desktop window
 	-- Disables popup after lovr.load(), to allow loading popup
 	t.window = nil
-  end
+end
