@@ -80,8 +80,6 @@ function lovr.load()
 
 	lovr.timer.sleep(1)
 
-	he.util.hang()
-
 end
 
 function lovr.keypressed(key, scancode, repeating)
