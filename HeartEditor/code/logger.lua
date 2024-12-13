@@ -9,7 +9,7 @@ local log = {
     end,
     c = {true,true,true,false,false},
     fatal = function(self, o, t)
-        print("\27[41m\27[04m["..o.."] FATAL:"..t.."\27[00m")
+        print("\27[41m\27[04m["..o.."] FATAL: "..t.."\27[00m")
         error("["..o.."] "..t)
     end,
     error = function(self, o, t)
@@ -34,7 +34,7 @@ local log = {
     end,
     verbose = function(self, o, t)
         if self.c[5] then
-            print("\27[02m["..o.."] verb :"..t.."\27[00m")
+            print("\27[02m["..o.."] verb : "..t.."\27[00m")
         end
     end,
     colours = function(log, conclude)
