@@ -1,5 +1,7 @@
 function lovr.load()
 
+	lovr.graphics.setBackgroundColor(.13, .13, .13)
+
 	--Import libraries
 	he = require "HeartEditor"
 	he.util = require "code.util"
@@ -78,7 +80,7 @@ function lovr.load()
 	stagetext = "Done loading, enjoy"
 	tempdraw()
 
-	lovr.timer.sleep(1)
+	lovr.timer.sleep(.5)
 
 end
 
