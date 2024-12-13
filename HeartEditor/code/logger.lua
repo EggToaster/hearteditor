@@ -1,0 +1,58 @@
+local log = {
+    init = function(self,e,w,i,d,v)
+        e = e or true
+        w = w or true
+        i = i or true
+        d = d or false
+        v = v or false
+        self.c = {e,w,i,d,v}
+    end,
+    c = {true,true,true,false,false},
+    fatal = function(self, o, t)
+        print("\27[41m\27[04m["..o.."] FATAL:"..t.."\27[00m")
+        error("["..o.."] "..t)
+    end,
+    error = function(self, o, t)
+        if self.c[1] then
+            print("\27[31m["..o.."] ERROR: "..t.."\27[00m")
+        end
+    end,
+    warning = function(self, o, t)
+        if self.c[2] then
+            print("\27[33m["..o.."] WARN : "..t.."\27[00m")
+        end
+    end,
+    info = function(self, o, t)
+        if self.c[3] then
+            print("\27[01m["..o.."] "..t.."\27[00m")
+        end
+    end,
+    debug = function(self, o, t)
+        if self.c[4] then
+            print("["..o.."] debug: "..t)
+        end
+    end,
+    verbose = function(self, o, t)
+        if self.c[5] then
+            print("\27[02m["..o.."] verb :"..t.."\27[00m")
+        end
+    end,
+    colours = function(log, conclude)
+        log:e("Color","These")
+        log:w("Color","Are")
+        log:l("Color","Colors!")
+        log:d("Color","Debug")
+        log:v("Color","Verbose")
+        if conclude then log:fatal("Color","Test concluded") end
+    end
+}
+log.err = log.error
+log.e = log.err
+log.warn = log.warning
+log.w = log.warn
+log.log = log.info
+log.l = log.info
+log.d = log.debug
+log.v = log.verbose
+
+return log
