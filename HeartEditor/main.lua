@@ -14,7 +14,7 @@ function lovr.load()
 
 	he.debug, he.verbose = false,false
 	if not he.verbose then
-		if table.hasleftinright({"-v","--verbose"}, {"-v"}) then
+		if table.hasleftinright({"-v","--verbose"}, arg) then
 			he.debug = true
 			he.verbose = true
 		elseif table.hasleftinright({"--debug","--dbg","-d"}, arg) then
