@@ -110,6 +110,7 @@ function lovr.load()
 	if not timeout then
 		log:fatal("HeartSystem", "WindowHandlerTemp not killed or killed too early")
 	end
+
 end
 
 function lovr.keypressed(key, scancode, repeating)
