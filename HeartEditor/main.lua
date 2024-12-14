@@ -1,10 +1,9 @@
 function lovr.load()
 
 	--Import libraries
-	he = require "HeartLibs.HeartEditor"
-	he.util = require "HeartLibs.util"
-	he.project = require "HeartLibs.projman"
-	log = require "code.logger"
+	he = require "HeartEditor"
+	he.util = require "util"
+	log = require "libs.logger"
 
 	--Debug stuff
 	if he.info.channel == he.enum.channel.development then
@@ -38,14 +37,21 @@ function lovr.load()
 	log:v("BootKicker", "Loading logo")
 
 	local HeartWarming = lovr.graphics.newTexture("placeholder.png")
-	
-	local stage = 1
-	local maxstage = 2
-	local stagetext = "Welcome screen"
 
-	local tempdraw = function()require("loadrender")(HeartWarming, stage, maxstage, stagetext)end
+
+	log:v("BootKicker", "Loading load routines...")
+
+	local routines = require("load")
+	table.insert(routines, 1, {name = "Welcome!", todo = function()end})
+
+	local stage = 0
+	local stagetext = "Welcome!"
+	local maxstage = #routines
 
 	log:v("BootKicker", "First render...")
+	
+	local tempdraw = function(finish)finish=finish or false;require("loadrender")(HeartWarming, stage, maxstage, stagetext)end
+	
 	tempdraw()
 
 	log:v("BootKicker", "Pass, starting temporary windowhandler")
@@ -65,17 +71,21 @@ function lovr.load()
 	thread:start()
 	lovr.timer.sleep(0.1)
 
+	log:v("BootKicker", "Starting routines")
+
+	for _, v in pairs(routines) do
+		stage = stage + 1
+		stagetext = v.name
+		tempdraw()
+		v.todo()
+		lovr.timer.sleep(0.1)
+	end
+
 	stage = stage + 1
-	stagetext = "Load UI2D"
-	tempdraw()
-	UI2D = require "ui2d..ui2d"
-	UI2D.Init()
-
-	stage = maxstage + 1
-	stagetext = "Done loading, enjoy"
+	stagetext = "Enjoy!"
 	tempdraw()
 
-	lovr.timer.sleep(.5)
+	lovr.timer.sleep(1)
 	lovr.graphics.setBackgroundColor(.5,.5,.5)
 
 	log:d("HeartSystem", "Killing thread")
