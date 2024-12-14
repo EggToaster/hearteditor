@@ -12,7 +12,7 @@ he._quitpopup = false
 
 he.enum = {
     channel = {development = "Development",beta = "Beta",release = "Release"},
-    arg = {verbose = {"-v", "-verbose", "--verbose"}, debug = {"-d", "--debug", "-debug"}, hotswap = {"-h", "--hotswap", "-hotswap"}}
+    arg = {verbose = {"-v", "-verbose", "--verbose"}, debug = {"-d", "--debug", "-debug"}, hotswap = {"-h", "--hotswap", "-hotswap"}, forcedevelopment = {"-force-dev-channel", "--force-dev-channel"}}
 }
 
 return he
