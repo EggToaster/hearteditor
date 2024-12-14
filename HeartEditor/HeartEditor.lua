@@ -11,7 +11,8 @@ he._quit = false
 he._quitpopup = false
 
 he.enum = {
-    channel = {development="Development",beta="Beta",release="Release"}
+    channel = {development = "Development",beta = "Beta",release = "Release"},
+    arg = {verbose = {"-v", "-verbose", "--verbose"}, debug = {"-d", "--debug", "-debug"}, hotswap = {"-h", "--hotswap", "-hotswap"}}
 }
 
 return he
