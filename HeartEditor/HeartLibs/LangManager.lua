@@ -25,4 +25,4 @@ local langsys = {
     end
 }
 
-return function() return langsys end, "lang"
+return function() return langsys, "lang" end

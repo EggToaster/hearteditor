@@ -66,4 +66,4 @@ local conf = {
         table.merge(self._defaultconfig, self._config)
     end
 }
-return function() return conf end, "config"
+return function() return conf, "config" end
