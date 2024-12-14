@@ -120,7 +120,7 @@ end
 function lovr.draw(pass)
 	pass:setProjection( 1, mat4():orthographic( pass:getDimensions() ) )
 
-	UI2D.Begin("Youcannotseethis", 0, 0, false, true)
+	UI2D.Begin("Youcannotseethis", 0, 0, false, true, true)
 	local dx, dy = pass:getDimensions()
 	UI2D.SetWindowPosition(0,0)
 	for _ = 1, 500 do UI2D.Label("Debug") end
