@@ -1,8 +1,9 @@
 function lovr.load()
 
 	--Import libraries
-	he = require "HeartEditor"
-	he.util = require "code.util"
+	he = require "HeartLibs.HeartEditor"
+	he.util = require "HeartLibs.util"
+	he.project = require "HeartLibs.projman"
 	log = require "code.logger"
 
 	--Debug stuff
