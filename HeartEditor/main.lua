@@ -9,20 +9,30 @@ function lovr.load()
 	if he.info.channel == he.enum.channel.development then
 		he.util.hang = function() log:e("HeartDebug","HANG!!!") while true do end end
 	else
-		he.util.hang = function() log:l("HeartDebug", "Debug function tried to hang the program. This should not occur, file a report") end
+		he.util.hang = function() log:w("HeartDebug", "Debug function tried to hang the program. This should not occur, file a report") end
 	end
 
-	he.debug, he.verbose = false,false
+
+
+	he.debug, he.verbose = false, false
 	if not he.verbose then
-		if table.hasleftinright({"-v","--verbose"}, arg) then
+		if table.hasleftinright(he.enum.arg.verbose, arg) then
 			he.debug = true
 			he.verbose = true
-		elseif table.hasleftinright({"--debug","--dbg","-d"}, arg) then
+		elseif table.hasleftinright(he.enum.arg.debug, arg) then
 			he.debug = true
 		end
 	end
+	he.hotswap = false
+	if table.hasleftinright(he.enum.arg.hotswap, arg) then
+		he.hotswap = true
+		log:l("BootKicker", "Hotswap is going to be enabled")
+	end
 
 	log:init(true,true,true,he.debug,he.verbose)
+
+	log:d("Logger", "Debug logging is enabled")
+	log:v("Logger", "Verbose logging is enabled")
 	
 	log:l("BootKicker", he.info.name..
 		" v"..he.info.version..string.lower(string.sub(he.info.channel,1,1))..", "..
