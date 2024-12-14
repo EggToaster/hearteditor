@@ -79,7 +79,8 @@ function table.count(t,e)
     return c
 end
 
--- Merges two tables. If 2 value with same key exists, latter one will take the priority.
+-- Merges two tables. If two of the same key exists, latter one will take the priority.
+-- No support for nesting, too much workload
 function table.merge(t,n)
     if t == {} then
         return n
@@ -87,6 +88,10 @@ function table.merge(t,n)
         return t
     end
     for k,v in pairs(n) do
+        local v = v
+        if type(v) == "table" then
+            v = table.clone(v)
+        end
         t[k] = v
     end
     return t
