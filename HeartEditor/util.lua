@@ -140,4 +140,15 @@ function util.boxcol(x,y,sx,sy,mx,my)
     return false
 end
 
+-- Parses version string to integer.
+-- Only supports 3, fully-integer coloums
+-- For example: 1.5.23
+function util.verparse(ver)
+    local t = {}
+    for s in string.gmatch(ver, "([^.]+)") do
+        table.insert(t,s)
+    end
+    return t[1], t[2], t[3]
+end
+
 return util
