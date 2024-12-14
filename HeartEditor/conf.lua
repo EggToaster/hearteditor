@@ -44,6 +44,6 @@ function lovr.conf(t)
 	t.math.globals = true
   
 	-- Configure the desktop window
-	-- Disables popup after lovr.load(), to allow loading popup
+	-- Disables window popup that is meant to happen after lovr.load, letting us open window before lovr.load ends
 	t.window = nil
 end
