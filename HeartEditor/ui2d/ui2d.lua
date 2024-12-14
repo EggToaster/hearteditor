@@ -674,11 +674,15 @@ function UI2D.InputInfo()
 	end
 end
 
-function UI2D.Begin( name, x, y, is_modal )
-	local exists, idx = WindowExists( name ) -- TODO: Can't currently change window title on runtime
+function UI2D.Begin( name, x, y, is_modal, fullscreen )
+	local exists, idx = WindowExists( name )
+	local fullscreen = fullscreen or false
 
 	if not exists then
 		next_z = next_z + 0.01
+		if fullscreen then
+			next_z = -0.01
+		end
 		local window = {
 			id = name,
 			title = GetLabelPart( name ),
@@ -695,7 +699,8 @@ function UI2D.Begin( name, x, y, is_modal )
 			is_hovered = false,
 			is_modal = is_modal or false,
 			was_called_this_frame = true,
-			cw = {}
+			cw = {},
+			fullscreen = fullscreen
 		}
 		table.insert( windows, window )
 
@@ -720,8 +725,25 @@ end
 
 function UI2D.End( main_pass )
 	local cur_window = windows[ begin_idx ]
-	cur_window.w = layout.total_w
-	cur_window.h = layout.total_h
+	local dx, dy = framework.GetWindowDimensions()
+	local scroll = cur_window.h > dy
+	if cur_window.fullscreen then
+		cur_window.w, cur_window.h = framework.GetWindowDimensions()
+		cur_window.h = cur_window.h - (2 * margin) + font.h
+	else
+		cur_window.w = layout.total_w
+		cur_window.h = layout.total_h
+	end
+	if false then
+		table.insert( windows[ begin_idx ].command_list, { type = "rect_fill", bbox = bbox, color = colors.list_bg } )
+		table.insert( windows[ begin_idx ].command_list, { type = "rect_wire", bbox = bbox, color = colors.list_border } )
+		table.insert( windows[ begin_idx ].command_list, { type = "rect_fill", bbox = sb_vertical, color = colors.list_track } )
+		table.insert( windows[ begin_idx ].command_list, { type = "rect_fill", bbox = sb_horizontal, color = colors.list_track } )
+		table.insert( windows[ begin_idx ].command_list, { type = "text", text = "△", bbox = sb_button_top, color = t_btn_col } )
+		table.insert( windows[ begin_idx ].command_list, { type = "text", text = "▽", bbox = sb_button_bottom, color = b_btn_col } )
+		table.insert( windows[ begin_idx ].command_list, { type = "text", text = "◁", bbox = sb_button_left, color = l_btn_col } )
+		table.insert( windows[ begin_idx ].command_list, { type = "text", text = "▷", bbox = sb_button_right, color = r_btn_col } )
+	end
 	assert( cur_window.w > 0, "Begin/End block without widgets!" )
 
 	-- Cache texture
