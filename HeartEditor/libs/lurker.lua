@@ -43,33 +43,15 @@ local function lastmodified(path)
     return info.modtime
 end
 
-local lovecallbacknames = {
-  "update",
-  "load",
-  "draw",
-  "mousepressed",
-  "mousereleased",
-  "keypressed",
-  "keyreleased",
-  "focus",
-  "quit"
-}
-
-
 function lurker.init()
   lurker.print("Initing lurker")
   lurker.path = "."
   lurker.preswap = function() end
   lurker.postswap = function() end
   lurker.interval = .5
-  lurker.protected = true
   lurker.quiet = false
   lurker.lastscan = 0
-  lurker.lasterrorfile = nil
   lurker.files = {}
-  lurker.funcwrappers = {}
-  lurker.lovefuncs = {}
-  lurker.state = "init"
   lume.each(lurker.getchanged(), lurker.resetfile)
   return lurker
 end
@@ -96,51 +78,11 @@ function lurker.listdir(path, recursive, skipdotfiles)
   return t
 end
 
-
-function lurker.initwrappers()
-  for _, v in pairs(lovecallbacknames) do
-    lurker.funcwrappers[v] = function(...)
-      local args = {...}
-      xpcall(function()
----@diagnostic disable-next-line: deprecated
-        return lurker.lovefuncs[v] and lurker.lovefuncs[v](unpack(args))
-      end, lurker.onerror)
-    end
-    lurker.lovefuncs[v] = lovr[v]
-  end
-  lurker.updatewrappers()
-end
-
-
-function lurker.updatewrappers()
-  for _, v in pairs(lovecallbacknames) do
-    if lovr[v] ~= lurker.funcwrappers[v] then
-      lurker.lovefuncs[v] = lovr[v]
-      lovr[v] = lurker.funcwrappers[v]
-    end
-  end
-end
-
-function lurker.exitinitstate()
-  lurker.state = "normal"
-  if lurker.protected then
-    lurker.initwrappers()
-  end
-end
-
 function lurker.update()
-  if lurker.state == "init" then
-    lurker.exitinitstate()
-  end
   local diff = time() - lurker.lastscan
   if diff > lurker.interval then
     lurker.lastscan = lurker.lastscan + diff
     local changed = lurker.scan()
-    if #changed > 0 and lurker.lasterrorfile then
-      local f = lurker.lasterrorfile
-      lurker.lasterrorfile = nil
-      lurker.hotswapfile(f)
-    end
   end
 end
 
@@ -175,26 +117,14 @@ function lurker.hotswapfile(f)
   if ok then
     lurker.print("Swapped '{1}' in {2} secs", {f, t})
   else
-    lurker.print("Failed to swap '{1}' : {2}", {f, err})
-    if not lurker.quiet and lurker.protected then
-      lurker.lasterrorfile = f
-      lurker.onerror(err, true)
-      lurker.resetfile(f)
-      return
-    end
+    log:e("lurker", "Failed to swap '{1}' : {2}", {f, err})
   end
   lurker.resetfile(f)
   lurker.postswap(f)
-  if lurker.protected then
-    lurker.updatewrappers()
-  end
 end
 
 
 function lurker.scan()
-  if lurker.state == "init" then
-    lurker.exitinitstate()
-  end
   local changed = lurker.getchanged()
   lume.each(changed, lurker.hotswapfile)
   return changed
