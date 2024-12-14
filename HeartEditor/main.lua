@@ -42,37 +42,31 @@ function lovr.load()
 	local maxstage = 2
 	local stagetext = "Welcome screen"
 
-	local function tempdraw()
-		local pass = lovr.graphics.getWindowPass()
-		pass:text((stage <= maxstage and stage.."/"..maxstage.." - " or "")..stagetext, -5.8, -1.7, -4, 1, 0, 0, 1, 0, 0, "left", "top")
-		if stage ~= 1 then log:d("BootKicker", stagetext) end
-		log:v("BootKicker","Render start")
-		pass:reset()
-		pass:setColor(.13, .13, .13)
-		pass:cube(-50, 0, -6, 100, 180)
-		pass:setColor(.5,.5,.5)
-		pass:text("Version "..he.info.version..string.lower(string.sub(he.info.channel,1,1)), -2, 1, -5, .5, 0, 0, 1, 0, 0, "left")
-		pass:setColor(.5,.5,1)
-		pass:box(-7, -2, -5, 28/maxstage*stage, .5, 0)
-		pass:setColor(1, 1, 1)
-		pass:text("HeartEditor", -2.1, 1.7, -5, 1, 0, 0, 1, 0, 0, "left")
-		pass:draw(HeartWarming, -4.5, 0.7, -5, 4.5)
-		lovr.graphics.submit(pass)
-		lovr.graphics.present()
-		lovr.timer.sleep(0.1)
-		log:v("BootKicker","Render done")
-	end
+	local tempdraw = function()require("loadrender")(HeartWarming, stage, maxstage, stagetext)end
 
 	log:v("BootKicker", "First render...")
 	tempdraw()
 
-	log:v("BootKicker", "Pass, starting load")
+	log:v("BootKicker", "Pass, starting temporary windowhandler")
+	channel = lovr.thread.getChannel("li")
+	local tc = [[
+		local lovr = {thread = require "lovr.thread", system = require "lovr.system", graphics = "lovr.graphics"}
+		local channel = lovr.thread.getChannel('li')
+		local finish = false
+		while not finish do
+			if channel:pop(false) == "done" then
+				finish = true
+			end
+			lovr.system.pollEvents()
+		end
+	]]
+	local thread = lovr.thread.newThread(tc)
+	thread:start()
 	lovr.timer.sleep(0.1)
 
 	stage = stage + 1
 	stagetext = "Load UI2D"
 	tempdraw()
-
 	UI2D = require "ui2d..ui2d"
 	UI2D.Init()
 
@@ -81,8 +75,13 @@ function lovr.load()
 	tempdraw()
 
 	lovr.timer.sleep(.5)
-
 	lovr.graphics.setBackgroundColor(.5,.5,.5)
+
+	log:d("HeartSystem", "Killing thread")
+	_, timeout = channel:push("done", 2)
+	if not timeout then
+		log:fatal("HeartSystem", "WindowHandlerTemp not killed or killed too early")
+	end
 end
 
 function lovr.keypressed(key, scancode, repeating)
@@ -121,7 +120,13 @@ end
 function lovr.draw(pass)
 	pass:setProjection( 1, mat4():orthographic( pass:getDimensions() ) )
 
-	UI2D.Begin("My Window", 200, 200)
+	UI2D.Begin("Youcannotseethis", 0, 0, false, true)
+	local dx, dy = pass:getDimensions()
+	UI2D.SetWindowPosition(0,0)
+	for _ = 1, 500 do UI2D.Label("Debug") end
+	UI2D.End(pass)
+
+	--[[UI2D.Begin("My Window", 200, 200)
 	UI2D.Button("My First Button")
 	UI2D.End(pass)
 
@@ -151,7 +156,7 @@ function lovr.draw(pass)
 		local wx, wy = UI2D.GetWindowSize("Quit?")
 		local dx, dy = lovr.system.getWindowDimensions()
 		UI2D.SetWindowPosition("Quit?", dx/2-wx/2, dy/2-wy/2)
-	end
+	end]]
 
 	local ui_passes = UI2D.RenderFrame(pass)
 	table.insert(ui_passes, pass)
@@ -163,8 +168,13 @@ function lovr.errhand(message)
 	  return s:gsub('\n[^\n]+$', ''):gsub('\t', ''):gsub('stack traceback:', '\nStack:\n')
 	end
   
-	message = tostring(message) .. formatTraceback(debug.traceback('', 4))
+	local message = tostring(message) .. formatTraceback(debug.traceback('', 4))
     print("\27[41m\27[04m"..message.."\27[00m")
+	--[[message = message:gsub("\"","\\\""):gsub("\n","\\n"):gsub("'","#")
+	local cmd = "bash -c '".."zenity --error --text=\""..message.."\"'"
+	print(cmd)
+	os.execute(cmd)]] -- An attempt to use zenity to show error
+
 	if not lovr.graphics or not lovr.graphics.isInitialized() then
 	  return function() return 1 end
 	end
