@@ -106,6 +106,23 @@ function table.hasleftinright(t,u)
     return false
 end
 
+-- Properly clones tree(table) in first argument, and returns it.
+-- In another words, ProperTree!
+-- Normally, if you use new = oldtable, it will clone table ID as well.
+-- Because the ID is same, both table will have same contents. This never changes.
+-- This will clone each individual elements, so you will never end up with conflicting table ID.
+function table.clone(tbl)
+    local t = {}
+    for k, v in pairs(tbl) do
+        local v = v
+        if type(v) == "table" then
+            v = table.clone(v)
+        end
+        t[k] = v
+    end
+    return t
+end
+
 --string
 
 -- Basic split.
