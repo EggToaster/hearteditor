@@ -674,9 +674,10 @@ function UI2D.InputInfo()
 	end
 end
 
-function UI2D.Begin( name, x, y, is_modal, fullscreen )
+function UI2D.Begin( name, x, y, is_modal, fullscreen, hidetitlebar )
 	local exists, idx = WindowExists( name )
 	local fullscreen = fullscreen or false
+	local hidetitlebar = hidetitlebar or false
 
 	if not exists then
 		next_z = next_z + 0.01
@@ -700,7 +701,8 @@ function UI2D.Begin( name, x, y, is_modal, fullscreen )
 			is_modal = is_modal or false,
 			was_called_this_frame = true,
 			cw = {},
-			fullscreen = fullscreen
+			fullscreen = fullscreen,
+			hidetitlebar = hidetitlebar
 		}
 		table.insert( windows, window )
 
@@ -729,7 +731,10 @@ function UI2D.End( main_pass )
 	local scroll = cur_window.h > dy
 	if cur_window.fullscreen then
 		cur_window.w, cur_window.h = framework.GetWindowDimensions()
-		cur_window.h = cur_window.h - (2 * margin) + font.h
+		cur_window.h = cur_window.h + (cur_window.hidetitlebar and ((2 * margin) + font.h) or 0)
+		if cur_window.hidetitlebar then
+			UI2D.SetWindowPosition(cur_window.id,0,- (2 * margin) - font.h)
+		end
 	else
 		cur_window.w = layout.total_w
 		cur_window.h = layout.total_h
@@ -768,23 +773,25 @@ function UI2D.End( main_pass )
 	framework.ClearWindow( cur_window )
 
 	-- Title bar and border
-	local title_col = colors.window_titlebar
-	if cur_window == active_window then
-		title_col = colors.window_titlebar_active
-	end
-	table.insert( windows[ begin_idx ].command_list,
-		{ type = "rect_fill", bbox = { x = 0, y = 0, w = cur_window.w, h = (2 * margin) + font.h }, color = title_col } )
+	if not cur_window.hidetitlebar then
+		local title_col = colors.window_titlebar
+		if cur_window == active_window then
+			title_col = colors.window_titlebar_active
+		end
+		table.insert( windows[ begin_idx ].command_list,
+			{ type = "rect_fill", bbox = { x = 0, y = 0, w = cur_window.w, h = (2 * margin) + font.h }, color = title_col } )
 
-	local txt = cur_window.title
-	local title_w = utf8.len( txt ) * font.w
-	if title_w > cur_window.w - (2 * margin) then -- Truncate title
-		local num_chars = ((cur_window.w - (2 * margin)) / font.w) - 3
-		txt = string.sub( txt, 1, num_chars ) .. "..."
-		title_w = utf8.len( txt ) * font.w
-	end
+		local txt = cur_window.title
+		local title_w = utf8.len( txt ) * font.w
+		if title_w > cur_window.w - (2 * margin) then -- Truncate title
+			local num_chars = ((cur_window.w - (2 * margin)) / font.w) - 3
+			txt = string.sub( txt, 1, num_chars ) .. "..."
+			title_w = utf8.len( txt ) * font.w
+		end
 
-	table.insert( windows[ begin_idx ].command_list,
-		{ type = "text", text = txt, bbox = { x = margin, y = 0, w = title_w, h = (2 * margin) + font.h }, color = colors.text } )
+		table.insert( windows[ begin_idx ].command_list,
+			{ type = "text", text = txt, bbox = { x = margin, y = 0, w = title_w, h = (2 * margin) + font.h }, color = colors.text } )
+	end
 
 	table.insert( windows[ begin_idx ].command_list,
 		{ type = "rect_wire", bbox = { x = 0, y = 0, w = cur_window.w, h = cur_window.h }, color = colors.window_border } )
