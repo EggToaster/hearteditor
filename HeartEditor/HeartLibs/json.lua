@@ -373,7 +373,7 @@ local load = function()
   end
 
 
-  function json.decode(str)
+  local function decode(str)
     if type(str) ~= "string" then
       error("expected argument of type string, got " .. type(str))
     end
@@ -383,6 +383,15 @@ local load = function()
       decode_error(str, idx, "trailing garbage")
     end
     return res
+  end
+
+  function json.decode(str)
+    decode(str)
+  end
+
+  function json.check(str)
+    local valid = pcall(function()decode(str)end)
+    return valid
   end
 
   return json, "json"
