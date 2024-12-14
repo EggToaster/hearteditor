@@ -57,6 +57,7 @@ log.warn = log.warning
 log.w = log.warn
 log.log = log.info
 log.l = log.info
+log.i = log.info
 log.d = log.debug
 log.v = log.verbose
 
