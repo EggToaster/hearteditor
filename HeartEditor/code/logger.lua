@@ -8,6 +8,11 @@ local log = {
         self.c = {e,w,i,d,v}
     end,
     c = {true,true,true,false,false},
+    assert = function(self, b, o, t)
+        if not b then
+            self:fatal(o,t)
+        end
+    end,
     fatal = function(self, o, t)
         print("\27[41m\27[04m["..o.."] FATAL: "..t.."\27[00m")
         error("["..o.."] "..t)
