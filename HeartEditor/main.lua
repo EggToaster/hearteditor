@@ -5,14 +5,16 @@ function lovr.load()
 	he.util = require "util"
 	log = require "libs.logger"
 
+	if table.hasleftinright(he.enum.arg.forcedevelopment, arg) then
+		he.info.channel = he.enum.channel.development
+	end
+
 	--Debug stuff
 	if he.info.channel == he.enum.channel.development then
 		he.util.hang = function() log:e("HeartDebug","HANG!!!") while true do end end
 	else
 		he.util.hang = function() log:w("HeartDebug", "Debug function tried to hang the program. This should not occur, file a report") end
 	end
-
-
 
 	he.debug, he.verbose = false, false
 	if not he.verbose then
@@ -23,10 +25,15 @@ function lovr.load()
 			he.debug = true
 		end
 	end
+
 	he.hotswap = false
 	if table.hasleftinright(he.enum.arg.hotswap, arg) then
-		he.hotswap = true
-		log:l("BootKicker", "Hotswap is going to be enabled")
+		if he.info.channel == he.enum.channel.development then
+			he.hotswap = true
+			log:l("HeartDebug", "Hotswap is going to be enabled")
+		else
+			log:e("HeartDebug", "Attempted hotswap enable in non-dev channel, this is illegal")
+		end
 	end
 
 	log:init(true,true,true,he.debug,he.verbose)
