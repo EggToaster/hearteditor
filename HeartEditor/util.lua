@@ -1,3 +1,11 @@
+-- Util utilities
+local function nullcheck(x)
+    if not x then return false end
+    if x == {} then return false end
+    if x == "" then return false end
+    return true
+end
+
 -- Returns key of a value.
 function table.keyof(t, v)
     for k, w in pairs(t) do
@@ -80,20 +88,24 @@ function table.count(t,e)
 end
 
 -- Merges two tables. If two of the same key exists, latter one will take the priority.
--- No support for nesting, too much workload
+-- Supports nesting... I think
 function table.merge(t,n)
-    if t == {} then
+    if (not nullcheck(t)) and (not nullcheck(n)) then
+        return {}
+    elseif not nullcheck(t) then
         return n
-    elseif n == {} then
+    elseif not nullcheck(n) then
         return t
     end
-    for k,v in pairs(n) do
+
+    for k, v in pairs(n) do
         local v = v
         if type(v) == "table" then
             v = table.clone(v)
         end
         t[k] = v
     end
+
     return t
 end
 
@@ -145,11 +157,7 @@ local util = {}
 
 -- Checks if x is null or empty kind of object
 function util.nullcheck(x)
-    if not x then return false -- This single line covers nil and false
-    elseif x == {} then return false
-    elseif x == "" then return false
-    elseif x == 0 then return false end
-    return true
+    return nullcheck(x)
 end
 
 -- 1~4th arguments is box(x,y, size-x, size-y), 5th and 6th is position of a dot.
@@ -162,15 +170,44 @@ function util.boxcol(x,y,sx,sy,mx,my)
     return false
 end
 
--- Parses version string to integer.
+-- DISABLED: Use intverparse
+-- Parses version string to table.
 -- Only supports 3, fully-integer coloums
--- For example: 1.5.23
-function util.verparse(ver)
+-- For example: 1.5.23 => {"1", "5", "23"}
+-- If version with characters that is not . is passed, it will... work
+-- For example: 1.5.23-5 => {"1", "5", "23-5"}
+
+--[[function util.verparse(ver)
     local t = {}
     for s in string.gmatch(ver, "([^.]+)") do
         table.insert(t,s)
     end
-    return t[1], t[2], t[3]
+    return t
+end]]
+
+-- Version of verparse, but returns integer table.
+-- Supports . and -.
+-- Example: "5.8.9-3", {5, 8, 9, 3}
+
+function util.intverparse(ver)
+    local x = {}
+
+    for s in string.gmatch(ver, "([^.]+)") do
+        table.insert(x, s)
+    end
+
+    local t = {}
+    for i = 1, #x do -- No I know what pairs is. Lua is just broken today.
+        local v = tonumber(x[i])
+        if v then
+            table.insert(t, v)
+        else
+            for s in string.gmatch(x[i], "([^-]+)") do
+                table.insert(t, s)
+            end
+        end
+    end
+    return t
 end
 
 return util
