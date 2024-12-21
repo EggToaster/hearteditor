@@ -10,9 +10,12 @@ local he = {
         channel = {development = "Development", beta = "Beta", release = "Release"},
         arg = {verbose = {"-v", "-verbose", "--verbose"}, debug = {"-d", "--debug", "-debug"},
         hotswap = {"-h", "--hotswap", "-hotswap"}, forcedevelopment = {"-force-dev-channel", "--force-dev-channel"}}
-    }
+    },
+    engine = {}
 }
 
 he.info.channel = he.enum.channel.development -- WORK: Change this every beta/normal release
+local m, n, o = lovr.getVersion()
+he.engine.version = tostring(m).."."..tostring(n).."."..tostring(o)
 
 return he
