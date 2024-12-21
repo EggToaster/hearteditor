@@ -39,9 +39,10 @@ function lovr.load()
 	log:d("Logger", "Debug logging is enabled")
 	log:v("Logger", "Verbose logging is enabled")
 	
+
 	log:l("BootKicker", he.info.name..
 		" v"..he.info.version..string.lower(string.sub(he.info.channel,1,1))..", "..
-		he.info.channel.." build, running on "..lovr.system.getOS())
+		he.info.channel.." build, running on "..lovr.system.getOS()..", LOVR version "..he.engine.version) -- System info
 
 	log:d("BootKicker", "Creating Window")
 
