@@ -25,7 +25,7 @@
 
 -- This version of lurker is modified to work with LOVR.
 
-local lume = require("libs.lurker")
+local lume = require("libs.lume")
 
 local lurker = { _version = "1.0.1" }
 
@@ -34,13 +34,11 @@ local dir = lovr.filesystem.getDirectoryItems
 local time = lovr.timer.getTime
 
 local function isdir(path)
-    local info = lovr.filesystem.getInfo(path)
-    return info.type == "directory"
+    return lovr.filesystem.isDirectory(path)
 end
 
 local function lastmodified(path)
-    local info = lovr.filesystem.getInfo(path, "file")
-    return info.modtime
+    return lovr.filesystem.getLastModified(path)
 end
 
 function lurker.init()
