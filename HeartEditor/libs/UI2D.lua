@@ -593,12 +593,14 @@ function UI2D.InputInfo()
 	local hovers_active = false
 	local hovers_any = false
 	for i, v in ipairs( windows ) do
-		if PointInRect( mouse.x, mouse.y, v.x, v.y, v.w, v.h ) then
-			if v == active_window then
-				hovers_active = true
+		if not v.fullscreen then
+			if PointInRect( mouse.x, mouse.y, v.x, v.y, v.w, v.h ) then
+				if v == active_window then
+					hovers_active = true
+				end
+				hovers_any = true
+				has_mouse = true
 			end
-			hovers_any = true
-			has_mouse = true
 		end
 	end
 
@@ -681,9 +683,6 @@ function UI2D.Begin( name, x, y, is_modal, fullscreen, hidetitlebar )
 
 	if not exists then
 		next_z = next_z + 0.01
-		if fullscreen then
-			next_z = -0.01
-		end
 		local window = {
 			id = name,
 			title = GetLabelPart( name ),
