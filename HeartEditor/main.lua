@@ -43,6 +43,9 @@ function lovr.load()
 	log:l("BootKicker", he.info.name..
 		" v"..he.info.version..string.lower(string.sub(he.info.channel,1,1))..", "..
 		he.info.channel.." build, running on "..lovr.system.getOS()..", LOVR version "..he.engine.version) -- System info
+	if he.engine.version ~= he.engine.target then
+		log:w("BootKicker", "Engine is older/newer than target "..he.engine.target..". Functionality cannot be guaranteed")
+	end
 
 	log:d("BootKicker", "Creating Window")
 
