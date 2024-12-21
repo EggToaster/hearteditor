@@ -1,9 +1,9 @@
 # HeartEditor
-A game engine with editor, that actually doesn't suck.
+A game engine with editor, that doesn't suck.
 This is meant to be almost 1-to-1 with Unity, with one goal in mind: Compiles to LÖVR project.
 
 # Build
-No build instruction! Just grab HeartEditor folder and run it with LÖVR.
+No build instructions yet. Just grab HeartEditor folder and run it with LÖVR.
 
 # Known Issues
 * Does not work on Linux with NVIDIA Optimus selected to dGPU only
