@@ -1,7 +1,7 @@
 function lovr.conf(t)
 
 	-- Set the project version and identity
-	t.version = '0.17.0'
+	t.version = '0.17.1'
 	t.identity = 'HeartEditor'
   
 	-- Set save directory precedence
