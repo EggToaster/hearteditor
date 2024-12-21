@@ -14,30 +14,54 @@ local log = {
         end
     end,
     fatal = function(self, o, t)
+        if not t then
+            t = o
+            o = "no module"
+        end
         print("\27[41m\27[04m["..o.."] FATAL: "..t.."\27[00m")
         error("["..o.."] "..t)
     end,
     error = function(self, o, t)
+        if not t then
+            t = o
+            o = "no module"
+        end
         if self.c[1] then
             print("\27[31m["..o.."] ERROR: "..t.."\27[00m")
         end
     end,
     warning = function(self, o, t)
+        if not t then
+            t = o
+            o = "no module"
+        end
         if self.c[2] then
             print("\27[33m["..o.."] WARN : "..t.."\27[00m")
         end
     end,
     info = function(self, o, t)
+        if not t then
+            t = o
+            o = "no module"
+        end
         if self.c[3] then
             print("\27[01m["..o.."] "..t.."\27[00m")
         end
     end,
     debug = function(self, o, t)
+        if not t then
+            t = o
+            o = "no module"
+        end
         if self.c[4] then
             print("["..o.."] debug: "..t)
         end
     end,
     verbose = function(self, o, t)
+        if not t then
+            t = o
+            o = "no module"
+        end
         if self.c[5] then
             print("\27[02m["..o.."] verb : "..t.."\27[00m")
         end
