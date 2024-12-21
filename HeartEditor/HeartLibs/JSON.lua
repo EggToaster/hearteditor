@@ -372,8 +372,7 @@ local load = function()
     decode_error(str, idx, "unexpected character '" .. chr .. "'")
   end
 
-
-  local function decode(str)
+  function json.decode(str)
     if type(str) ~= "string" then
       error("expected argument of type string, got " .. type(str))
     end
@@ -385,13 +384,16 @@ local load = function()
     return res
   end
 
-  function json.decode(str)
-    decode(str)
-  end
-
   function json.check(str)
-    local valid = pcall(function()decode(str)end)
-    return valid
+    if type(str) ~= "string" then
+      return false
+    end
+    local res, idx = parse(str, next_char(str, 1, space_chars, true))
+    idx = next_char(str, idx, space_chars, true)
+    if idx <= #str then
+      return false
+    end
+    return true
   end
 
   return json, "json"
