@@ -13,17 +13,15 @@ function lovr.load()
 	if he.info.channel == he.enum.channel.development then
 		he.util.hang = function() log:e("HeartDebug","HANG!!!") while true do end end
 	else
-		he.util.hang = function() log:w("HeartDebug", "Debug function tried to hang the program. This should not occur, file a report") end
+		he.util.hang = function() log:w("HeartDebug", "Debug function tried to hang the program. This should not have made in final release") end
 	end
 
 	he.debug, he.verbose = false, false
-	if not he.verbose then
-		if table.hasleftinright(he.enum.arg.verbose, arg) then
-			he.debug = true
-			he.verbose = true
-		elseif table.hasleftinright(he.enum.arg.debug, arg) then
-			he.debug = true
-		end
+	if table.hasleftinright(he.enum.arg.verbose, arg) then
+		he.debug = true
+		he.verbose = true
+	elseif table.hasleftinright(he.enum.arg.debug, arg) then
+		he.debug = true
 	end
 
 	he.hotswap = false
@@ -67,8 +65,29 @@ function lovr.load()
 
 	log:v("BootKicker", "First render...")
 	
-	local tempdraw = function(finish)finish=finish or false;require("loadrender")(HeartWarming, stage, maxstage, stagetext)end
-	
+	local function tempdraw()
+		local pass = lovr.graphics.getWindowPass()
+		log:v("BootKicker", "Render start")
+		pass:reset()
+		log:v("BootKicker", "Pass resetted")
+		pass:setColor(.13, .13, .13)
+		pass:cube(-50, 0, -6, 100, 180)
+		pass:setColor(.5,.5,.5)
+		pass:text("Version "..he.info.version..string.lower(string.sub(he.info.channel,1,1)), -2, 1, -5, .5, 0, 0, 1, 0, 0, "left")
+		pass:setColor(.5,.5,1)
+		pass:box(-7, -2, -5, 28/maxstage*stage, .5, 0)
+		pass:setColor(1, 1, 1)
+		pass:text("HeartEditor", -2.1, 1.7, -5, 1, 0, 0, 1, 0, 0, "left")
+		pass:draw(HeartWarming, -4.5, 0.7, -5, 4.5)
+		pass:text((stage <= maxstage and stage.."/"..maxstage.." - " or "")..stagetext, -5.8, -1.7, -4, 1, 0, 0, 1, 0, 0, "left", "top")
+		if stage ~= 1 then log:d("BootKicker", stagetext) end
+		log:v("BootKicker", "Submitting pass... If it crashed, something between this and \"Psss resetted\" is usual suspect")
+		lovr.graphics.submit(pass)
+		lovr.graphics.present()
+		lovr.timer.sleep(0.1)
+		log:v("BootKicker", "Render done")
+	end
+
 	tempdraw()
 
 	log:v("BootKicker", "Pass, starting temporary windowhandler")
@@ -88,11 +107,12 @@ function lovr.load()
 	thread:start()
 	lovr.timer.sleep(0.1)
 
-	log:v("BootKicker", "Starting routines")
+	log:l("BootKicker", "Starting routines")
 
 	for _, v in pairs(routines) do
 		stage = stage + 1
 		stagetext = v.name
+		log:l("BootKicker", "Routine "..stage..", "..stagetext)
 		tempdraw()
 		v.todo()
 		lovr.timer.sleep(0.1)
@@ -105,11 +125,12 @@ function lovr.load()
 	lovr.timer.sleep(1)
 	lovr.graphics.setBackgroundColor(.5,.5,.5)
 
-	log:d("HeartSystem", "Killing thread")
+	log:d("BootKicker", "Killing thread")
 	_, timeout = channel:push("done", 2)
 	if not timeout then
-		log:fatal("HeartSystem", "WindowHandlerTemp not killed or killed too early")
+		log:fatal("BootKicker", "WindowHandlerTemp not killed or killed too early")
 	end
+	log:l("BootKicker", "Loading finished, enjoy")
 
 end
 
@@ -149,14 +170,19 @@ end
 function lovr.draw(pass)
 	pass:setProjection( 1, mat4():orthographic( pass:getDimensions() ) )
 
-	UI2D.Begin("Youcannotseethis", 0, 0, false, true, true)
+	--[[UI2D.Begin("Youcannotseethis", 0, 0, false, true, true)
 	local dx, dy = pass:getDimensions()
 	UI2D.SetWindowPosition(0,0)
-	for _ = 1, 500 do UI2D.Label("Debug") end
-	UI2D.End(pass)
+	for _ = 1, 1 do UI2D.Label("Debug") end
+	UI2D.Button("Open")
+	UI2D.End(pass)]]
 
-	--[[UI2D.Begin("My Window", 200, 200)
-	UI2D.Button("My First Button")
+	UI2D.Begin("My Window", 200, 200)
+	UI2D.Button("NFD open")
+	UI2D.End(pass)
+	
+	UI2D.Begin("My EFI", 400, 200)
+	UI2D.Button("Maybe snapshot")
 	UI2D.End(pass)
 
 	if he._quitpopup then
@@ -179,13 +205,14 @@ function lovr.draw(pass)
 		UI2D.SameLine()
 		if UI2D.Button("Cancel") then
 			he._quitpopup = false
+			UI2D.EndModalWindow()
 			log:l("HeartSystem","Quit cancelled")
 		end
 		UI2D.End(pass)
 		local wx, wy = UI2D.GetWindowSize("Quit?")
 		local dx, dy = lovr.system.getWindowDimensions()
 		UI2D.SetWindowPosition("Quit?", dx/2-wx/2, dy/2-wy/2)
-	end]]
+	end
 
 	local ui_passes = UI2D.RenderFrame(pass)
 	table.insert(ui_passes, pass)
@@ -199,10 +226,6 @@ function lovr.errhand(message)
   
 	local message = tostring(message) .. formatTraceback(debug.traceback('', 4))
     print("\27[41m\27[04m"..message.."\27[00m")
-	--[[message = message:gsub("\"","\\\""):gsub("\n","\\n"):gsub("'","#")
-	local cmd = "bash -c '".."zenity --error --text=\""..message.."\"'"
-	print(cmd)
-	os.execute(cmd)]] -- An attempt to use zenity to show error
 
 	if not lovr.graphics or not lovr.graphics.isInitialized() then
 	  return function() return 1 end
