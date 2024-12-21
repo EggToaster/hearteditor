@@ -54,7 +54,10 @@ table.insert(loadstages, {name = "Load configuration", todo = function()
 
     log:d("ConfigSys", "Using config to adjust values")
 
-    --if he.config:read("ui.theme.dark")
+    print(he.config:read("ui.theme.dark"))
+    if not he.config:read("ui.theme.dark") then
+        UI2D.SetColorTheme("light")
+    end
 
 end})
 
