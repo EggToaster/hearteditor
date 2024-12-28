@@ -45,7 +45,7 @@ local log = {
             o = "no module"
         end
         if self.c[3] then
-            print("\27[01m["..o.."] "..t.."\27[00m")
+            print("["..o.."] "..t.."\27[00m")
         end
     end,
     debug = function(self, o, t)
@@ -54,7 +54,7 @@ local log = {
             o = "no module"
         end
         if self.c[4] then
-            print("["..o.."] debug: "..t)
+            print("\27[02m["..o.."] debug: "..t)
         end
     end,
     verbose = function(self, o, t)
