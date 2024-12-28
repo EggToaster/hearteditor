@@ -66,13 +66,13 @@ local load = function()
       local n = 0
       for k in pairs(val) do
         if type(k) ~= "number" then
-          log.v("json","Table contains \"invalid\" keys.")
+          log:v("json","Table contains \"invalid\" keys.")
           --error("invalid table: mixed or invalid key types")
         end
         n = n + 1
       end
       if n ~= #val then
-        log.v("json","Table uses? sparse array.")
+        log:v("json","Table uses? sparse array.")
         --error("invalid table: sparse array")
       end
       -- Encode
