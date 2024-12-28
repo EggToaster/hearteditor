@@ -170,7 +170,7 @@ function util.boxcol(x,y,sx,sy,mx,my)
     return false
 end
 
--- DISABLED: Use intverparse
+-- DISABLED: UseNo I knintverparse
 -- Parses version string to table.
 -- Only supports 3, fully-integer coloums
 -- For example: 1.5.23 => {"1", "5", "23"}
@@ -208,6 +208,52 @@ function util.intverparse(ver)
         end
     end
     return t
+end
+
+-- Properly parses arguments
+-- -rf will be r and f, --rf will be rf.
+-- Meaning, -width will be w, i, d, t and h.
+-- This should be --width ins    endtead, to return width.
+-- --width 80 --height 50 = {width = 80, height = 50}
+-- ACCEPTS STRING ONLY. No table.
+
+function util.argparse(arg)
+    local maybeadd = false
+    local prev = ""
+    local newargs = {}
+    local values = {}
+    for _, v in pairs(string.split(arg, " ")) do
+        if string.sub(v, 1, 2) == "--" then -- Single argument
+            if maybeadd then -- Tried to add already, adding the argument to list
+                table.insert(newargs, prev)
+            end
+            maybeadd = true
+            prev = string.sub(v, 3)
+        elseif string.sub(v, 1, 1) == "-" then -- Few arguments?
+            if string.len(v) == 2 then -- Just one.
+                if maybeadd then
+                    table.insert(newargs, prev)
+                end
+                maybeadd = true
+                prev = string.sub(v, 2)
+            else -- Few arguments
+                for i = 2, string.len(v) do
+                    table.insert(newargs, string.sub(v, i, i))
+                end
+            end
+        else
+            if maybeadd then -- Value of an argument
+                newargs[prev] = v
+                maybeadd = false
+            else -- Just a value
+                table.insert(values, v)
+            end
+        end
+    end
+    if maybeadd then -- Check to prevent last -- arg from being ignored
+        table.insert(newargs, prev)
+    end
+    return newargs, values
 end
 
 return util
