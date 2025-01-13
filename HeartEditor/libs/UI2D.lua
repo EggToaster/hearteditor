@@ -205,11 +205,11 @@ function framework.SetKeyRepeat()
 end
 
 function framework.IsMouseDown( btn )
-	return lovr.system.isMouseDown( btn )
+	return lovr.mouse.isDown( btn )
 end
 
 function framework.GetMousePosition()
-	return lovr.system.getMousePosition()
+	return lovr.mouse.getPosition()
 end
 
 function framework.GetWindowDimensions()
