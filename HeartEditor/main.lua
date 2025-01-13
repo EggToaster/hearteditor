@@ -49,7 +49,13 @@ function lovr.load()
 
 	log:d("BootKicker", "Creating Window")
 
-	lovr.system.openWindow({width=720,height=340,fullscreen=false,resizable=true,title="HeartEditor",icon="placeholder.png"})
+	lovr.system.openWindow({width=720,height=340,fullscreen=false,resizable=false,title="HeartEditor - Loading",icon="placeholder.png"})
+
+	lovr.window = require "libs.lovr-window"
+
+	local wx, wy = lovr.window.getPosition()
+	local dpx, dpy = lovr.window.getDisplayDimensions(1)
+	lovr.window.setPosition(dpx/2-720/2, dpy/2-340/2)
 
 	log:d("BootKicker", "Preparing for first render")
 
@@ -118,6 +124,7 @@ function lovr.load()
 		stagetext = v.name
 		log:l("BootKicker", "Routine "..stage..", "..stagetext)
 		tempdraw()
+		lovr.window.setTitle("HeartEditor - Loading "..stage.."/"..maxstage)
 		v.todo()
 		lovr.timer.sleep(0.1)
 	end
@@ -134,6 +141,10 @@ function lovr.load()
 	if not timeout then
 		log:fatal("BootKicker", "WindowHandlerTemp not killed or killed too early")
 	end
+	
+	lovr.window.setMode(1080,600,{resizable = true})
+	lovr.window.setPosition(wx, wy)
+	
 	log:l("BootKicker", "Loading finished, enjoy")
 
 end
