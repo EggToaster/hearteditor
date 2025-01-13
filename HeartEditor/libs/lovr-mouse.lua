@@ -20,6 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]
 
+assert(type(jit) == 'table' and lovr.system.getOS() ~= 'Android', 'lovr-mouse cannot run on this platform')
 local ffi = require 'ffi'
 local C = ffi.os == 'Windows' and ffi.load('glfw3') or ffi.C
 
@@ -59,6 +60,7 @@ ffi.cdef [[
   void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor);
   int glfwGetMouseButton(GLFWwindow* window, int button);
   void glfwGetWindowSize(GLFWwindow* window, int* width, int* height);
+  void glfwDestroyCursor(GLFWcursor* cursor);
   GLFWmousebuttonfun glfwSetMouseButtonCallback(GLFWwindow* window, GLFWmousebuttonfun callback);
   GLFWcursorposfun glfwSetCursorPosCallback(GLFWwindow* window, GLFWcursorposfun callback);
   GLFWcursorposfun glfwSetScrollCallback(GLFWwindow* window, GLFWscrollfun callback);
@@ -132,7 +134,7 @@ function mouse.newCursor(source, hotx, hoty)
     assert(tostring(source) == 'Image', 'Bad argument #1 to newCursor (Image expected)')
   end
   local image = ffi.new('GLFWimage', source:getWidth(), source:getHeight(), source:getPointer())
-  return C.glfwCreateCursor(image, hotx or 0, hoty or 0)
+  return ffi.gc(C.glfwCreateCursor(image, hotx or 0, hoty or 0), C.glfwDestroyCursor)
 end
 
 function mouse.getSystemCursor(kind)
@@ -145,7 +147,7 @@ function mouse.getSystemCursor(kind)
     sizens = C.GLFW_VRESIZE_CURSOR
   }
   assert(kinds[kind], string.format('Unknown cursor %q', tostring(kind)))
-  return C.glfwCreateStandardCursor(kinds[kind])
+  return ffi.gc(C.glfwCreateStandardCursor(kinds[kind]), C.glfwDestroyCursor)
 end
 
 function mouse.setCursor(cursor)
