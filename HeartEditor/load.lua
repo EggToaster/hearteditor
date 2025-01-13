@@ -22,6 +22,10 @@ table.insert(loadstages, {name = "Load libraries", todo = function()
     log:d("LibLoader", "UI2D init")
     UI2D.Init()
 
+    log:d("LibLoader", "LoVR extensions")
+    lovr.mouse = require "libs.lovr-mouse"
+    lovr.keyboard = require "libs.lovr-keyboard"
+
     --log:d("LibLoader", "lovr-mouse load")
     --lovr.newmouse = require("libs.lovr-mouse")
 
